@@ -14,7 +14,7 @@ icon_path = os.path.join(home_dir, ".local/share/Zalo/assets/Zalo.png")
 # Start the Zalo application
 process = subprocess.Popen([electron_path, app_path])
 
-def option1():
+def openZalo():
     os.system(f'"{electron_path}" "{app_path}"')
 
 def exit_action(icon, item):
@@ -26,7 +26,7 @@ image = Image.open(icon_path)
 
 # Create the tray menu
 menu = Menu(
-    MenuItem('Open Zalo', lambda: option1()),
+    MenuItem('Open Zalo', lambda: openZalo()),
     MenuItem('Exit', exit_action)
 )
 
