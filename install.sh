@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Exit on error
@@ -43,7 +44,7 @@ wget "$ELECTRON_URL" -P "$TMP_DIR"
 unzip "$TMP_DIR/$ELECTRON_ZIP" -d "$TMP_DIR/electron"
 rm "$TMP_DIR/$ELECTRON_ZIP"
 cp -r "$TMP_DIR/electron" "$INSTALL_DIR/electron"
-chmod +x /home/bug/.local/share/Zalo/electron
+chmod +x "$INSTALL_DIR/electron/electron"
 
 # Step 3: Create desktop shortcut
 echo "Creating desktop shortcut..."
