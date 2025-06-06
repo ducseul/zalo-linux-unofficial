@@ -11,22 +11,26 @@ DESKTOP_FILE="$HOME/.local/share/applications/${APP_NAME}.desktop"
 ICON_PATH="$INSTALL_DIR/assets/Zalo.png"
 START_SCRIPT="$INSTALL_DIR/start.sh"
 TMP_DIR="/tmp/zalo-installer"
+VENV_DIR="$INSTALL_DIR/venv"
 
 # Step 1: Install dependencies
 echo "Installing Python3, pip, pystray, and Pillow..."
-if command -v apt &>/dev/null; then
+if command -v apt &>/dev/null; then # Debian/Ubuntu
     sudo apt update
-    sudo apt install -y python3 python3-pip unzip wget
-elif command -v dnf &>/dev/null; then
-    sudo dnf install -y python3 python3-pip unzip wget
-elif command -v pacman &>/dev/null; then
-    sudo pacman -Sy --noconfirm python python-pip unzip wget
+    sudo apt install -y python3 python3-pip python3-venv unzip wget
+elif command -v dnf &>/dev/null; then  # Fedora/RHEL/CentOS
+    sudo dnf install -y python3 python3-pip python3-venv unzip wget
+elif command -v pacman &>/dev/null; then  # Arch Linux
+    sudo pacman -Sy --noconfirm python python-pip python-venv unzip wget
 else
-    echo "Unsupported package manager. Install Python 3, pip, unzip, and wget manually."
+    echo "Unsupported package manager. Install Python 3, pip, python3-venv, unzip, and wget manually."
     exit 1
 fi
 
-pip3 install --user pystray pillow
+# Step 1.1: Create virtual environment and install Python packages
+echo "Creating virtual environment and installing Python packages..."
+python3 -m venv "$VENV_DIR"
+"$VENV_DIR/bin/pip" install pystray pillow
 
 # Step 2: Create install directory and copy files
 echo "Copying files to $INSTALL_DIR..."
@@ -46,6 +50,15 @@ rm "$TMP_DIR/$ELECTRON_ZIP"
 cp -r "$TMP_DIR/electron" "$INSTALL_DIR/electron"
 chmod +x "$INSTALL_DIR/electron/electron"
 
+# Step 2.2: Update start.sh to use virtual environment
+echo "Updating start script to use virtual environment..."
+cat <<EOF > "$START_SCRIPT"
+#!/bin/bash
+cd "$INSTALL_DIR"
+source "$VENV_DIR/bin/activate"
+python3 main.py
+EOF
+
 # Step 3: Create desktop shortcut
 echo "Creating desktop shortcut..."
 mkdir -p "$(dirname "$DESKTOP_FILE")"
@@ -60,25 +73,6 @@ Type=Application
 Categories=Utility;
 EOF
 
-# Step 3.1: Create uninstall desktop shortcut
-# echo "Creating uninstall shortcut..."
-
-# UNINSTALL_SCRIPT="$INSTALL_DIR/uninstall.sh"
-# UNINSTALL_DESKTOP_FILE="$HOME/.local/share/applications/${APP_NAME}_uninstall.desktop"
-
-
-# # Create the desktop shortcut for uninstalling
-# cat <<EOF > "$UNINSTALL_DESKTOP_FILE"
-# [Desktop Entry]
-# Name=Uninstall $APP_NAME
-# Comment=Remove $APP_NAME from your system
-# Exec=bash "$UNINSTALL_SCRIPT"
-# Icon=system-software-update
-# Terminal=true
-# Type=Application
-# Categories=Utility;
-# EOF
-
 # Step 4: Make scripts executable and update desktop database
 chmod +x "$DESKTOP_FILE"
 # chmod +x "$UNINSTALL_SCRIPT"
@@ -86,3 +80,5 @@ chmod +x "$START_SCRIPT"
 update-desktop-database "$(dirname "$DESKTOP_FILE")" || true
 
 echo "$APP_NAME installed successfully!"
+
+echo "Virtual environment created at: $VENV_DIR"
