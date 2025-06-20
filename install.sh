@@ -21,7 +21,7 @@ if command -v apt &>/dev/null; then # Debian/Ubuntu
 elif command -v dnf &>/dev/null; then  # Fedora/RHEL/CentOS
     sudo dnf install -y python3 python3-pip python3-venv unzip wget
 elif command -v pacman &>/dev/null; then  # Arch Linux
-    sudo pacman -Sy --noconfirm python python-pip python-venv unzip wget
+    sudo pacman -Sy --noconfirm python python-pip python-virtualenv unzip wget
 else
     echo "Unsupported package manager. Install Python 3, pip, python3-venv, unzip, and wget manually."
     exit 1
